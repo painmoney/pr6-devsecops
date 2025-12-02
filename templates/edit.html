@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Редактирование заметки</title>
+    <style>
+        body { font-family: Arial; max-width: 600px; margin: 0 auto; padding: 20px; }
+        input, textarea { width: 100%; margin: 5px 0; padding: 8px; }
+    </style>
+</head>
+<body>
+    <h1>Редактирование заметки</h1>
+    
+    <form method="POST">
+        {{ form.hidden_tag() }}  <!-- CSRF токен -->
+        {{ form.title(placeholder="Заголовок") }}<br>
+        {{ form.content(placeholder="Содержание", rows=6) }}<br>
+        {{ form.submit() }}
+        <a href="{{ url_for('index') }}">Отмена</a>
+    </form>
+</body>
+</html>

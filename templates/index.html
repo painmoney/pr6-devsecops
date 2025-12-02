@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Мои заметки (Secure)</title>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .note { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .flash { background: #d4edda; color: #155724; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .error { background: #f8d7da; color: #721c24; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        form { margin: 20px 0; }
+        input, textarea { width: 100%; margin: 5px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        nav { background: #343a40; padding: 10px; margin-bottom: 20px; border-radius: 5px; }
+        nav a { color: white; margin-right: 15px; text-decoration: none; }
+        nav a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <nav>
+        {% if session.username %}
+            <strong>Вы вошли как: {{ session.username }}</strong> | 
+            <a href="/logout">Выйти</a>
+        {% else %}
+            <a href="/login">Войти</a> | 
+            <a href="/register">Регистрация</a>
+        {% endif %}
+        | <a href="/test-sql">Тест SQL</a>
+        | <a href="/test-sql-get?id=1">Тест SQL GET</a>
+    </nav>
+    
+    <h1>📝 Мои безопасные заметки</h1>
+    
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash">
+                {% for message in messages %}
+                    {{ message }}<br>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    {% if session.user_id %}
+        <h2>➕ Добавить заметку</h2>
+        <form method="POST" action="/add">
+            {{ form.hidden_tag() }}
+            {{ form.title(placeholder="Заголовок заметки") }}<br>
+            {{ form.content(placeholder="Содержание заметки", rows=4) }}<br>
+            <button type="submit">Сохранить заметку</button>
+        </form>
+        
+        <hr>
+        
+        <h2>📋 Мои заметки</h2>
+        {% if notes %}
+            {% for note in notes %}
+                <div class="note">
+                    <h3>{{ note.title }}</h3>
+                    <p>{{ note.content }}</p>
+                    <small>Создано: {{ note.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>У вас пока нет заметок. Добавьте первую!</p>
+        {% endif %}
+    {% else %}
+        <div style="text-align: center; margin-top: 50px;">
+            <h2>🔒 Добро пожаловать!</h2>
+            <p>Для работы с заметками необходимо <a href="/login">войти</a> или <a href="/register">зарегистрироваться</a>.</p>
+            <p>Это безопасное приложение с защитой от SQL-инъекций, CSRF атак и с хэшированием паролей.</p>
+        </div>
+    {% endif %}
+    
+    <footer style="margin-top: 50px; border-top: 1px solid #ddd; padding-top: 20px; font-size: 0.9em; color: #666;">
+        <p>ПР №6: DevSecOps и план безопасности | Защищённое Flask-приложение</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,60 @@
+Run started:2025-12-02 23:02:33.076206
+
+Test results:
+>> Issue: [B104:hardcoded_bind_all_interfaces] Possible binding to all interfaces.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-605 (https://cwe.mitre.org/data/definitions/605.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/plugins/b104_hardcoded_bind_all_interfaces.html
+   Location: .\app.py:211:42
+210	    debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+211	    host = '127.0.0.1' if debug_mode else '0.0.0.0'
+212	    print(f"🚀 Запуск Flask приложения на {host}:5000")
+
+--------------------------------------------------
+>> Issue: [B105:hardcoded_password_string] Possible hardcoded password: 'super_secret_password_123'
+   Severity: Low   Confidence: Medium
+   CWE: CWE-259 (https://cwe.mitre.org/data/definitions/259.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/plugins/b105_hardcoded_password_string.html
+   Location: .\bad_example.py:25:11
+24	# Уязвимость 3: Хардкод пароля (B105)
+25	password = "super_secret_password_123"  # Bandit: B105 - hardcoded_password_string
+26	
+
+--------------------------------------------------
+>> Issue: [B102:exec_used] Use of exec detected.
+   Severity: Medium   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/plugins/b102_exec_used.html
+   Location: .\bad_example.py:29:0
+28	user_code = request.args.get('code')
+29	exec(user_code)  # Bandit: B102 - exec_used
+
+--------------------------------------------------
+>> Issue: [B105:hardcoded_password_string] Possible hardcoded password: 'dev-secret-key-change-in-production'
+   Severity: Low   Confidence: Medium
+   CWE: CWE-259 (https://cwe.mitre.org/data/definitions/259.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/plugins/b105_hardcoded_password_string.html
+   Location: .\config\development.py:2:13
+1	DEBUG = True
+2	SECRET_KEY = 'dev-secret-key-change-in-production'
+3	SQLALCHEMY_DATABASE_URI = 'sqlite:///dev_database.db'
+
+--------------------------------------------------
+
+Code scanned:
+	Total lines of code: 208
+	Total lines skipped (#nosec): 0
+	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 0
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0
+		Low: 2
+		Medium: 2
+		High: 0
+	Total issues (by confidence):
+		Undefined: 0
+		Low: 0
+		Medium: 3
+		High: 1
+Files skipped (0):

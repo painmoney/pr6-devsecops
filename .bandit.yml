@@ -1,0 +1,18 @@
+# Конфигурация Bandit для безопасности
+exclude_dirs: ['tests', 'venv', '.git']
+skips: ['B101']  # Пропускаем предупреждение о assert в тестах
+
+# Целевые файлы
+targets: ['*.py']
+
+# Уровень проверки
+level: 'HIGH'
+
+# Конфигурация проверок
+tests:
+  - 'B102'  # exec используется
+  - 'B103'  # set_bad_lineno
+  - 'B104'  # hardcoded_bind_all_interfaces
+  - 'B105'  # hardcoded_password_string
+  - 'B106'  # hardcoded_password_funcarg
+  - 'B107'  # hardcoded_password_default
