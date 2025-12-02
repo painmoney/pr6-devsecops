@@ -14,7 +14,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4  # Обновлено до v4
     
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -79,14 +79,14 @@ jobs:
     
     - name: Upload security report
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4  # ОБНОВЛЕНО ДО v4!
       with:
         name: security-reports
         path: |
           bandit-report.json
           safety-report.txt
+        retention-days: 7
 
-  # Добавим этап деплоя (пример для Heroku)
   deploy:
     needs: security-scan
     runs-on: ubuntu-latest
@@ -95,6 +95,6 @@ jobs:
     steps:
     - name: Deploy to production
       run: |
-        echo "🚀 Успешный деплой в production!"
-        # Здесь будет команда деплоя, например:
-        # git push heroku main
+        echo "🚀 Все security проверки пройдены!"
+        echo "Код готов к деплою в production."
+        echo "Здесь будет команда деплоя (Heroku, Docker, etc.)"
