@@ -208,7 +208,7 @@ def add_note():
 
 if __name__ == '__main__':
     debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
-    host = '127.0.0.1' if debug_mode else '0.0.0.0'
+    host = '127.0.0.1'
     print(f"🚀 Запуск Flask приложения на {host}:5000")
     print(f"🔧 Debug режим: {debug_mode}")
     app.run(debug=debug_mode, host=host, port=5000)
