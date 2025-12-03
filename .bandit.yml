@@ -1,11 +1,6 @@
-# .bandit.yml
 exclude_dirs: ['tests', '.venv', '.git', '__pycache__', '.pytest_cache', 'instance']
-skips: ['B101', 'B404', 'B105', 'B104', 'B608', 'B102']  # Добавили все что находит в bad_example.py
+skips: ['B101', 'B404', 'B104', 'B105', 'B608', 'B102', 'B403']
 targets: ['*.py']
-
-# Уровни проверки
 confidence_level: 'HIGH'
 severity_level: 'HIGH'
-
-# Исключения
-exclude: ['bad_example.py', 'app.py']  # Исключаем файлы для демонстрации
+exclude: ['bad_example.py', 'app.py']

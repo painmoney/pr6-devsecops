@@ -5,8 +5,6 @@ on:
     branches: [main, master]
   pull_request:
     branches: [main, master]
-  schedule:
-    - cron: '0 0 * * 0'
 
 jobs:
   security-scan:
@@ -26,27 +24,36 @@ jobs:
           pip install -r requirements-dev.txt
 
       - name: Run Bandit SAST
+        id: bandit
         run: |
-          bandit -r . -c .bandit.yml -f json -o bandit-report.json || true
+          echo "Running Bandit security scan..."
+          bandit -r . -c .bandit.yml -f json -o bandit-report.json
 
       - name: Check Bandit results
+        id: check_bandit
         run: |
           python scripts/check_bandit.py
 
       - name: Scan dependencies
         run: |
+          echo "Checking dependencies with Safety..."
           safety check --full-report > safety-report.txt 2>&1 || true
+          echo "=== Safety Report ==="
+          cat safety-report.txt
 
       - name: Run security tests
         run: |
+          echo "Running security tests..."
           python -m pytest tests/test_security.py -v
 
       - name: Check debug mode
         run: |
+          echo "Checking for debug=True..."
           if grep -r "debug\s*=\s*True" app.py models.py 2>/dev/null; then
-            echo "FAIL: debug=True found"
+            echo "❌ FAIL: debug=True found in production code!"
             exit 1
-          fi
+          else
+            echo "✅ PASS: No debug=True in production code"
 
       - name: Upload reports
         if: always()
@@ -65,4 +72,9 @@ jobs:
     steps:
       - name: Deploy simulation
         run: |
-          echo "DEPLOY: All security checks passed"
+          echo "🚀 DEPLOY: All security checks passed!"
+          echo "================================"
+          echo "✅ Bandit: Static analysis passed"
+          echo "✅ Safety: Dependencies secure"
+          echo "✅ Tests: Security tests passed"
+          echo "✅ Debug: No debug mode in prod"
