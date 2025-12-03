@@ -205,7 +205,7 @@ def add_note():
         db.session.commit()
         flash('Заметка добавлена!')
     return redirect(url_for('index'))
-
+ 
 if __name__ == '__main__':
     debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
     host = '127.0.0.1'
