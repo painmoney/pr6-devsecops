@@ -206,6 +206,23 @@ def add_note():
         flash('Заметка добавлена!')
     return redirect(url_for('index'))
 
+# ДЛЯ ДЕМОНСТРАЦИИ CI/CD
+# Этот код вызовет ошибку в pipeline
+app.debug = True  # Уязвимость: debug режим в production
+
+# ОПАСНАЯ SQL-ИНЪЕКЦИЯ (HIGH severity)
+import sqlite3
+def dangerous_query(user_input):
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    # SQL-инъекция
+    query = f"SELECT * FROM users WHERE id = {user_input}" 
+    cursor.execute(query)
+    return cursor.fetchall()
+
+# Хардкод пароля (для Bandit)
+SECRET_KEY = "my_super_secret_password_123"  
+
 if __name__ == '__main__':
     debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
     host = '127.0.0.1'
