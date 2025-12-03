@@ -1,6 +1,2 @@
-exclude_dirs: ['tests', '.venv', '.git', '__pycache__', '.pytest_cache', 'instance']
-skips: ['B101', 'B404', 'B104', 'B105', 'B608', 'B102', 'B403']
-targets: ['*.py']
-confidence_level: 'HIGH'
-severity_level: 'HIGH'
-exclude: ['bad_example.py', 'app.py']
+exclude_dirs: ['.venv', '.git', '__pycache__']
+skips: []
