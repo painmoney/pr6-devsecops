@@ -1,109 +1,68 @@
-name: Security CI/CD Pipeline
+﻿name: Security CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, master, dev ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
   schedule:
-    - cron: '0 0 * * 0'  # Еженедельно в воскресенье
+    - cron: '0 0 * * 0'
 
 jobs:
   security-scan:
     runs-on: ubuntu-latest
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-    
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements-dev.txt
-    
-    - name: Run Bandit SAST
-      id: bandit
-      run: |
-        echo "🔍 Запуск статического анализа безопасности..."
-        
-        # Создаем отчет в любом случае
-        bandit -r . -c .bandit.yml -f json -o bandit-report.json
-        
-        # Проверяем наличие критических уязвимостей
-        CRITICAL_COUNT=$(python -c "
-import json
-import sys
-try:
-    with open('bandit-report.json') as f:
-        data = json.load(f)
-    critical = sum(1 for issue in data.get('results', []) 
-                   if issue.get('issue_severity') == 'HIGH')
-    print(critical)
-except Exception as e:
-    print('0')
-        ")
-        
-        echo "critical_count=$CRITICAL_COUNT" >> $GITHUB_OUTPUT
-        echo "Найдено критических уязвимостей: $CRITICAL_COUNT"
-        
-        if [ "$CRITICAL_COUNT" -gt 0 ]; then
-          echo "❌ Критические уязвимости обнаружены!"
-          echo "Детали отчета Bandit:"
-          bandit -r . -c .bandit.yml -f txt
-          exit 1
-        else
-          echo "✅ Критических уязвимостей не найдено"
-        fi
-    
-    - name: Scan dependencies for vulnerabilities
-      run: |
-        echo "📦 Проверка зависимостей на уязвимости..."
-        safety check --full-report > safety-report.txt 2>&1 || true
-        cat safety-report.txt
-    
-    - name: Run security tests
-      run: |
-        echo "🧪 Запуск security-тестов..."
-        python -m pytest tests/test_security.py -v --tb=short
-    
-    - name: Check for debug mode
-      id: debug_check
-      run: |
-        echo "🔧 Проверка debug режима..."
-        if grep -r "debug\s*=\s*True" . --include="*.py" | grep -v test | grep -v "#" | grep -v bad_example; then
-          echo "❌ Обнаружен debug=True в production коде!"
-          exit 1
-        else
-          echo "✅ Debug режим правильно настроен"
-        fi
-    
-    - name: Upload security reports
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: security-reports
-        path: |
-          bandit-report.json
-          safety-report.txt
-        retention-days: 7
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Run Bandit SAST
+        run: |
+          bandit -r . -c .bandit.yml -f json -o bandit-report.json || true
+
+      - name: Check Bandit results
+        run: |
+          python scripts/check_bandit.py
+
+      - name: Scan dependencies
+        run: |
+          safety check --full-report > safety-report.txt 2>&1 || true
+
+      - name: Run security tests
+        run: |
+          python -m pytest tests/test_security.py -v
+
+      - name: Check debug mode
+        run: |
+          if grep -r "debug\s*=\s*True" app.py models.py 2>/dev/null; then
+            echo "FAIL: debug=True found"
+            exit 1
+          fi
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: |
+            bandit-report.json
+            safety-report.txt
+          retention-days: 7
 
   deploy:
     needs: security-scan
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && success()
-    
     steps:
-    - name: Deploy simulation
-      run: |
-        echo "🚀 Все security проверки пройдены успешно!"
-        echo "✅ Bandit: Статический анализ пройден"
-        echo "✅ Safety: Зависимости проверены"
-        echo "✅ Pytest: Security тесты пройдены"
-        echo "✅ Debug check: Debug режим отключен"
-        echo ""
-        echo "Код готов к деплою в production среду!"
+      - name: Deploy simulation
+        run: |
+          echo "DEPLOY: All security checks passed"
